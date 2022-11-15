@@ -1,0 +1,8 @@
+prometheus_client
+mysqlclient
+PyYAML
+sanic
+ujson
+uvloop
+pysnooper
+requests
