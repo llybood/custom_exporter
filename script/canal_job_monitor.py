@@ -15,6 +15,7 @@ middle_db_user = "root"
 middle_db_password = "123456"
 middle_db_database = "mysql"
 
+
 def get_mysql_result(db_conn, sql):
     db_conn.query(sql)
     r = db_conn.use_result()
@@ -22,7 +23,8 @@ def get_mysql_result(db_conn, sql):
     db_conn.close()
     
 def main(target):
-    result = {}
+    metrics = []
+    metric = {}
     instances = []
     # 获取源端表数据量
     source_sql = "select count(*) from %s" %(target,)
@@ -36,10 +38,11 @@ def main(target):
     # 比较差异,返回json数据量
     data_diff_num = int(source_counts) - int(middle_counts) 
     instances.append({"instance": target, "type": "business", "value": data_diff_num})
-    result["instances"] = instances
-    result["metric"] = "custom_canal_monitor_data_diff"
-    result["description"] = "monitor canal sync data differences, normal is 0"
-    return result
+    metric["instances"] = instances
+    metric["metric"] = "custom_canal_monitor_data_diff"
+    metric["description"] = "monitor canal sync data differences, normal is 0"
+    metrics.append(metric)
+    return metrics
 
 if __name__ == "main":
     main(target)
