@@ -1,0 +1,8 @@
+test:
+  name: test
+  script: test.sh
+  description: "this is a test demo"
+canal-data-sync-monitor:
+  name: custom_canal_monitor_data_diff
+  script: canal_job_monitor.py
+  description: monitor canal sync data differences, normal is 0

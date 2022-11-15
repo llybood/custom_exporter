@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  custom_exporter:
+    image: custom_exporter:1.0
+    container_name: custom_exporter
+    volumes:
+      - ./conf/config.yaml:/app/custom_exporter/conf/config.yaml
+      - ./script:/app/custom_exporter/script
+    ports:
+      - "9111:9111"
+    restart: always
+    #network_mode: host
