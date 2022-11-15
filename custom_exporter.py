@@ -10,14 +10,11 @@ import ujson
 import asyncio
 import uvloop
 import importlib
-from prometheus_client import Counter
-from prometheus_client import Gauge
-from prometheus_client import Histogram
-from prometheus_client import generate_latest
-from prometheus_client import CollectorRegistry
-from sanic import Sanic
-from sanic import response
-from sanic import json
+from prometheus_client import ( Counter,
+        Gauge, Histogram, generate_latest, CollectorRegistry,
+        PROCESS_COLLECTOR,
+)
+from sanic import Sanic, response, json
 from MySQLdb import _mysql
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -46,10 +43,7 @@ async def get_python_collect_metrics(monitor):
     target = monitor.get('target')
     script = monitor.get('script')
     custom_module = importlib.import_module(get_module_name(script))
-    #metric = canal_job_monitor_test.main(target)
     metric = custom_module.main(target)
-    metric['name'] = monitor.get('name')
-    metric['description'] = monitor.get('description')
     metrics.append(metric)
     return metrics
 
@@ -66,8 +60,6 @@ async def get_shell_collect_metrics(monitor):
     res  = await proc.stdout.readline()
     metric = ujson.loads(res.decode())
     await proc.wait()
-    metric['name'] = monitor.get('name')
-    metric['description'] = monitor.get('description')
     metrics.append(metric)
     return metrics
 
@@ -86,9 +78,13 @@ async def get_metrics(monitor):
 async def set_gauge_metrics(metrics):
     for metric in metrics:
         registry = CollectorRegistry()
-        name = metric['name']
+        name = metric['metric']
         description = metric['description']
-        gauge = Gauge(name, description, ['instance','type'], registry=registry)
+        labels = []
+        for label in metric.get('instances')[0]:
+            labels.append(label)
+        labels.remove('value')
+        gauge = Gauge(name, description, set(labels), registry=registry)
         for instance in metric['instances']:
             instance_value = instance['value']
             instance_labels = instance
@@ -110,7 +106,7 @@ def init(sanic, loop):
 
 @app.route("/metrics", methods=["GET"])
 async def index(request):
-    return response.text("I'm Running")
+    return response.text(generate_latest(PROCESS_COLLECTOR).decode())
 
 @app.route("/<job:str>/metrics", methods=["GET"])
 async def get_job_metrics(request, job):
