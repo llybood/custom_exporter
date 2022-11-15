@@ -35,8 +35,10 @@ def main(target):
     middle_counts = get_mysql_result(middle_db, middle_sql)
     # 比较差异,返回json数据量
     data_diff_num = int(source_counts) - int(middle_counts) 
-    instances.append({"instance": target,"type": "business","value": data_diff_num})
+    instances.append({"instance": target, "type": "business", "value": data_diff_num})
     result["instances"] = instances
+    result["metric"] = "custom_canal_monitor_data_diff"
+    result["description"] = "monitor canal sync data differences, normal is 0"
     return result
 
 if __name__ == "main":
