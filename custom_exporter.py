@@ -15,7 +15,6 @@ from prometheus_client import ( Counter,
         PROCESS_COLLECTOR,
 )
 from sanic import Sanic, response, json
-from MySQLdb import _mysql
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
@@ -31,6 +30,7 @@ def get_config():
         data = yaml.load(f.read(), Loader=yaml.FullLoader)
     return data
 
+# 获取python模块名称
 def get_module_name(script_file):
     if script_file.endswith('.py'):
         return script_file.replace('.py', '')
@@ -39,17 +39,17 @@ def get_module_name(script_file):
 
 # 获取python脚本采集数据
 async def get_python_collect_metrics(monitor):
-    metrics = []
+    #metrics = []
     target = monitor.get('target')
     script = monitor.get('script')
     custom_module = importlib.import_module(get_module_name(script))
     metric = custom_module.main(target)
-    metrics.append(metric)
-    return metrics
+    #metrics.append(metric)
+    return metric
 
 # 获取shell脚本采集数据
 async def get_shell_collect_metrics(monitor):
-    metrics = []
+    #metrics = []
     target = monitor.get('target')
     script = SCRIPT_DIR + '/' + monitor.get('script')
     if target:
@@ -60,8 +60,8 @@ async def get_shell_collect_metrics(monitor):
     res  = await proc.stdout.readline()
     metric = ujson.loads(res.decode())
     await proc.wait()
-    metrics.append(metric)
-    return metrics
+    #metrics.append(metric)
+    return metric
 
 # 汇总采集数据
 async def get_metrics(monitor):
@@ -74,10 +74,10 @@ async def get_metrics(monitor):
         metrics = []
     return metrics
 
-# 格式化成gauge类型监控数据
+# 生成gauge类型监控数据
 async def set_gauge_metrics(metrics):
+    registry = CollectorRegistry()
     for metric in metrics:
-        registry = CollectorRegistry()
         name = metric['metric']
         description = metric['description']
         labels = []
