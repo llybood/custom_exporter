@@ -43,8 +43,10 @@ async def get_python_collect_metrics(monitor):
     target = monitor.get('target')
     script = monitor.get('script')
     custom_module = importlib.import_module(get_module_name(script))
-    metric = custom_module.main(target)
-    #metrics.append(metric)
+    if target:
+        metric = custom_module.main(target)
+    else:
+        metric = custom_module.main()
     return metric
 
 # 获取shell脚本采集数据
