@@ -55,7 +55,7 @@ async def get_shell_collect_metrics(monitor):
     target = monitor.get('target')
     script = SCRIPT_DIR + '/' + monitor.get('script')
     if target:
-        command_line = script + " " + target_instance
+        command_line = script + " " + target
     else:
         command_line = script
     proc = await asyncio.create_subprocess_shell(command_line, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
