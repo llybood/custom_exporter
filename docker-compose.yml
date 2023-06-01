@@ -2,7 +2,7 @@ version: "3"
 
 services:
   custom_exporter:
-    image: custom_exporter:1.1
+    image: llybood/custom_exporter:latest
     container_name: custom_exporter
     volumes:
       - ./conf/config.yaml:/app/custom_exporter/conf/config.yaml
